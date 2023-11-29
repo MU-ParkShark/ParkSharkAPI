@@ -1,0 +1,8 @@
+# NPM stuff
+node_modules
+
+# Git stuff
+.git
+
+# Mac Filesystem stuff
+.DS_Store
