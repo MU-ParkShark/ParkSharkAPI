@@ -15,4 +15,4 @@ Welcome! This is a REST API backend for the **ParkShark** application.
   * `npm run start`
 
 ### Note:
-Make sure you run `npm install` when cloning this project!
+Make sure you run `npm install` after cloning this project!
