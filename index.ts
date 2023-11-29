@@ -12,7 +12,7 @@ app.use('/lots', lotsRouter);
 
 app.use('/spots', spotsRouter);
 
-app.use('schedules', schedulesRouter);
+app.use('/schedules', schedulesRouter);
 
 app.get('/', (_req : Request, res : Response) => {
   res.send('ParkShark API loading...');
