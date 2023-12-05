@@ -24,4 +24,8 @@ export const Schedule = dbConnection.define('Schedule', {
         type: DataTypes.TINYINT,
         allowNull: false
     }
+}, {
+    tableName: "schedules",
+    timestamps: false,
+    underscored: true
 });

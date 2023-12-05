@@ -42,7 +42,6 @@ export const User = dbConnection.define('User', {
     }
 }, {
     tableName: "users",
-    timestamps: false
+    timestamps: false,
+    underscored: true
 });
-
-User.hasMany(Schedule);
