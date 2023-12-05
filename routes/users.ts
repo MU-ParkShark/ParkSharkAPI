@@ -18,7 +18,6 @@ usersRouter.get('/getUser/:id', async (req, res) => {
         res.send(resUser);
     } catch (error) {
         console.log(error);
-        res.status(500);
-        res.send('Failure to retrieve user');
+        res.status(500).send('Failure to retrieve user');
     }
 })

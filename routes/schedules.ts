@@ -17,7 +17,6 @@ schedulesRouter.get('/getUserSchedule/:id', async (req, res) => {
         res.send(resSchedule)
     } catch(err) {
         console.log(err);
-        res.status(500);
-        res.send(err);
+        res.status(404).send(err);
     }
 })
