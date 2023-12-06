@@ -1,6 +1,5 @@
 import { dbConnection } from "./dbInit";
 import { DataTypes } from "sequelize";
-import { Schedule } from "./Schedule";
 
 export const User = dbConnection.define('User', {
     user_id: {
