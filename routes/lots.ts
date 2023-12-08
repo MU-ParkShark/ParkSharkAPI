@@ -1,5 +1,4 @@
 import express, { Router } from "express";
-import { dbConnection } from "../models/dbInit";
 import { Parking_Spot } from "../models/Parking_Spot";
 
 export const lotsRouter: Router = express.Router();
