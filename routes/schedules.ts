@@ -72,3 +72,19 @@ schedulesRouter.patch('/updateSchedule/:id', jsonParser, async (req, res) => {
         res.status(501).send(err);
     }
 });
+
+schedulesRouter.delete('/deleteScheduleEntry/:id', async (req, res) => {
+    try {
+        const entryToBeDeleted = await Schedule.findOne({
+            where: {
+                'schedule_id': req.params.id
+            }
+        });
+
+        const response = await entryToBeDeleted?.destroy();
+        res.status(200).send(response);
+    } catch (err) {
+        console.log(err);
+        res.status(501).send(err);
+    }
+});
