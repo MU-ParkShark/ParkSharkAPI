@@ -47,3 +47,28 @@ schedulesRouter.post('/setSchedule', jsonParser, async (req, res) => {
         res.status(501).send(err);
     }
 });
+
+// Expects request body to be JSON data
+schedulesRouter.patch('/updateSchedule/:id', jsonParser, async (req, res) => {
+    const updatedData = {
+        ...req.body
+    };
+
+    console.log(updatedData);
+
+    try {
+        const entryToBeChanged = await Schedule.findOne({
+            where: {
+                'schedule_id': req.params.id
+            }
+        });
+
+        entryToBeChanged?.set(updatedData);
+
+        const response = await entryToBeChanged?.save();
+        res.status(200).send(response);
+    } catch (err) {
+        console.log(err);
+        res.status(501).send(err);
+    }
+});
