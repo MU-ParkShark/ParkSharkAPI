@@ -20,7 +20,7 @@ schedulesRouter.get('/getUserSchedule/:id', async (req, res) => {
         res.send(resSchedule);
     } catch(err) {
         console.log(err);
-        res.status(404).send(err);
+        res.status(200).send(err);
     }
 });
 
@@ -44,7 +44,7 @@ schedulesRouter.post('/setSchedule', jsonParser, async (req, res) => {
         res.status(200).send(newScheduleEntry);
     } catch(err) {
         console.log(err);
-        res.status(501).send(err);
+        res.status(200).send(err);
     }
 });
 
@@ -53,8 +53,6 @@ schedulesRouter.patch('/updateSchedule/:id', jsonParser, async (req, res) => {
     const updatedData = {
         ...req.body
     };
-
-    console.log(updatedData);
 
     try {
         const entryToBeChanged = await Schedule.findOne({
@@ -69,7 +67,7 @@ schedulesRouter.patch('/updateSchedule/:id', jsonParser, async (req, res) => {
         res.status(200).send(response);
     } catch (err) {
         console.log(err);
-        res.status(501).send(err);
+        res.status(200).send(err);
     }
 });
 
@@ -85,6 +83,6 @@ schedulesRouter.delete('/deleteScheduleEntry/:id', async (req, res) => {
         res.status(200).send(response);
     } catch (err) {
         console.log(err);
-        res.status(501).send(err);
+        res.status(200).send(err);
     }
 });

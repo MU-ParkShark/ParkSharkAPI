@@ -35,6 +35,6 @@ lotsRouter.get('/getOccupancy/:id', async (req, res) => {
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send('Unable to determine lot occupancy.');
+        res.status(200).send('Unable to determine lot occupancy.');
     }
 })
