@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const userSchema = Joi.object({
+export const userSchema = Joi.object({
   vehicle_make: Joi.string()
     .alphanum()
     .required(),
@@ -20,7 +20,7 @@ const userSchema = Joi.object({
     .required()
 });
 
-const scheduleSchema = Joi.object({
+export const scheduleSchema = Joi.object({
   user_id: Joi.number()
     .required(),
   time_in: Joi.string()
@@ -31,7 +31,7 @@ const scheduleSchema = Joi.object({
     .required()
 });
 
-const spotSchema = Joi.object({
+export const spotSchema = Joi.object({
   is_handicap: Joi.bool()
     .required(),
   latlong: [
