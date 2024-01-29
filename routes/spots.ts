@@ -16,7 +16,8 @@ spotsRouter.post('/find', async (req, res) => {
 		const spots = await Parking_Spot.sequelize?.query(query, {
 			type: QueryTypes.SELECT,
 		});
-		res.status(200).json(spots);
+		if (!spots || spots.length === 0) throw new Error('No spots found.');
+		res.status(200).json(spots[0]);
 	} catch (error) {
 		console.log(error);
 		res.status(200).send('Unable to retrieve parking spot.');
