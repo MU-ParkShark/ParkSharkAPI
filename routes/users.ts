@@ -1,5 +1,6 @@
 import express, { Router } from "express";
 import { User } from "../models/User";
+import { userSchema } from "../models/JoiSchemas";
 import bodyParser from "body-parser";
 
 export const usersRouter: Router = express.Router();
@@ -38,6 +39,7 @@ usersRouter.post('/createUser', jsonParser, async (req, res) => {
     };
 
     try {
+        await userSchema.validateAsync(userData);
         const newUser = await User.create(userData);
         res.status(200).send(newUser);
     } catch (err) {
