@@ -19,13 +19,8 @@ export default class Parkinator {
         // TODO: Update Parking_Spots table isAvailable and Lot_Activity pTimeIn, pTimeOut, timeslot, and day_of_week.
     }
 
-    private static updateCache(tag_id: string, location: ILocation, locationUnchangedCount: number) {
-        
-    }
-
     public determineState(tag_id: number, longitude: number, latitude: number) {
-        // TODO: utitlize above methods to determine if spot is taken and what state car is in.
-        let tag_id_string = `${tag_id}`;
+        // TODO: utilize above methods to determine if spot is taken and what state car is in.
         const location: ILocation = { longitude, latitude };
     }
 }
