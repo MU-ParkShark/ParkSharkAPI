@@ -33,6 +33,11 @@ export const Lot_Activity = dbConnection.define(
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
+		status: {
+			type: DataTypes.ENUM("PARKED", "CANDIDATE", "VOID"),
+			allowNull: false,
+			defaultValue: "VOID",
+		},
 	},
 	{
 		tableName: 'lot_activity',

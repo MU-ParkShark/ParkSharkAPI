@@ -10,10 +10,6 @@ export const Tag = dbConnection.define(
 			primaryKey: true,
 			autoIncrement: true,
 		},
-		last_latlong: {
-			type: DataTypes.GEOMETRY('POINT'),
-			allowNull: true,
-		},
 		user_id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,

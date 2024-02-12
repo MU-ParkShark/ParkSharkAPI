@@ -5,6 +5,7 @@ import { spotsRouter } from './routes/spots';
 import { schedulesRouter } from './routes/schedules';
 import { lotActivityRouter } from './routes/lotActivity';
 import { tagsRouter } from './routes/tags';
+import { tagActivityRouter } from './routes/tagActivity';
 
 const app: Express = express();
 
@@ -20,6 +21,8 @@ app.use('/schedules', schedulesRouter);
 app.use('/lotactivity', lotActivityRouter);
 
 app.use('/tags', tagsRouter);
+
+app.use('/tagActivity', tagActivityRouter);
 
 app.get('/', (_req: Request, res: Response) => {
 	res.send('ParkShark API loading...');
