@@ -13,6 +13,12 @@ export const Tag = dbConnection.define(
 		user_id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+			unique: true,
+		},
+		serial_code: {
+			type: DataTypes.STRING(100),
+			allowNull: false,
+			defaultValue: "TESTESTESTESTESTEST",
 		},
 	},
 	{
