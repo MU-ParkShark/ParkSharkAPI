@@ -1,6 +1,8 @@
 import express, { Router } from 'express';
 import { Tag } from '../models/Tag';
+
 import { QueryTypes } from 'sequelize';
+
 
 export const tagsRouter: Router = express.Router();
 
