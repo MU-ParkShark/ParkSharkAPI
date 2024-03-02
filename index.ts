@@ -5,6 +5,7 @@ import { spotsRouter } from './routes/spots';
 import { schedulesRouter } from './routes/schedules';
 import { lotActivityRouter } from './routes/lotActivity';
 import { tagsRouter } from './routes/tags';
+
 import { tagActivityRouter } from './routes/tagActivity';
 
 const app: Express = express();
