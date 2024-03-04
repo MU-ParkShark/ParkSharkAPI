@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import { Parking_Spot } from '../models/Parking_Spot';
 import { QueryTypes } from 'sequelize';
-import { spotSchema } from "../models/JoiSchemas";
+import { spotSchema } from '../models/JoiSchemas';
 
 export const spotsRouter: Router = express.Router();
 
@@ -10,7 +10,7 @@ spotsRouter.get('/', (_req, res) => {
 });
 
 // TODO: Create spatial index on table to improve performance.
-spotsRouter.post('/find', async (req, res) => {
+spotsRouter.get('/find', async (req, res) => {
 	const { longitude, latitude } = req.query;
 	try {
 		const query = `SELECT *, ST_Distance_Sphere(latlong, POINT(${longitude}, ${latitude})) as distance FROM parking_spots ORDER BY distance LIMIT 1`;

@@ -3,7 +3,6 @@ import { Tag } from '../models/Tag';
 
 import { QueryTypes } from 'sequelize';
 
-
 export const tagsRouter: Router = express.Router();
 
 tagsRouter.get('/', (_req, res) => {
@@ -15,7 +14,7 @@ tagsRouter.get('/', (_req, res) => {
 // 	- user, int
 // TODO: Set tag_id to autoincrement in db (requires fk deletion)
 tagsRouter.post('/', async (req, res) => {
-	const { user } = req.query;
+	const { user } = req.body;
 	try {
 		const tag = await Tag.create({ user_id: user });
 		res.status(201).json(tag);
@@ -56,7 +55,7 @@ tagsRouter.get('/user/:id', async (req, res) => {
 // 	- user, int
 tagsRouter.put('/:id', async (req, res) => {
 	const { id } = req.params;
-	const { user } = req.query;
+	const { user } = req.body;
 	try {
 		const tag = await Tag.findByPk(id);
 		if (!tag) throw new Error('Tag not found.');
@@ -82,26 +81,6 @@ tagsRouter.get('/:id/location', async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		res.status(404).send('Tag not found.');
-	}
-});
-
-// Update tag's last location
-// Query params:
-// 	- long, float
-// 	- lat, float
-tagsRouter.put('/:id/location', async (req, res) => {
-	const { id } = req.params;
-	const { long, lat } = req.query;
-	try {
-		const tag = await Tag.findByPk(id);
-		if (!tag) throw new Error('Tag not found.');
-		await tag.update({
-			last_latlong: { type: 'Point', coordinates: [long, lat] },
-		});
-		res.status(200).json(tag);
-	} catch (error) {
-		console.log(error);
-		res.status(500).send('Unable to update tag location.');
 	}
 });
 
