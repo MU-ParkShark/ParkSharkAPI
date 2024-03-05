@@ -76,3 +76,20 @@ lotsRouter.get('/getOccupancy/:id', async (req, res) => {
         res.status(200).send('Unable to determine lot occupancy.');
     }
 })
+
+lotsRouter.get('/getSpots/:id', async (req, res) => {
+    const lot_id = req.params.id;
+
+    try {
+        const spots = await Parking_Spot.findAll({
+            where: {
+                lot_id
+            }
+        });
+
+        res.status(200).send(spots);
+    } catch (e) {
+        console.log(e);
+        res.status(200).send(e);
+    }
+});
