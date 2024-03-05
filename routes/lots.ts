@@ -83,7 +83,7 @@ lotsRouter.get('/getSpots/:id', async (req, res) => {
     try {
         const spots = await Parking_Spot.findAll({
             where: {
-                lot_id
+                lot_id: parseInt(lot_id)
             }
         });
 
