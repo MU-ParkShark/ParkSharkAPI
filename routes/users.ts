@@ -28,18 +28,11 @@ usersRouter.get('/getUser/:id', async (req, res) => {
 
 usersRouter.post('/createUser', jsonParser, async (req, res) => {
     const userData = {
-        vehicle_make: req.body.vehicle_make || null,
-        vehicle_model: req.body.vehicle_model || null,
-        vehicle_year: req.body.vehicle_year || -1,
-        vehicle_color: req.body.vehicle_color || null,
-        license_plate: req.body.license_plate || null,
-        tag_id: req.body.tag_id || -1,
-        first_name: req.body.first_name || null,
-        last_name: req.body.last_name || null
+        ...req.params
     };
 
     try {
-        //await userSchema.validateAsync(userData);
+        await userSchema.validateAsync(userData);
         const newUser = await User.create(userData);
         res.status(200).send(newUser);
     } catch (err) {
