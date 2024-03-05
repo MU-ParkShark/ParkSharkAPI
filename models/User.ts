@@ -4,7 +4,6 @@ import { DataTypes } from "sequelize";
 export const User = dbConnection.define('User', {
     user_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         autoIncrement: true,
         primaryKey: true
     },
