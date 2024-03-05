@@ -28,7 +28,7 @@ usersRouter.get('/getUser/:id', async (req, res) => {
 
 usersRouter.post('/createUser', jsonParser, async (req, res) => {
     const userData = {
-        ...req.params
+        ...req.body
     };
 
     try {
