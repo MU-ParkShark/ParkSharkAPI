@@ -9,6 +9,17 @@ spotsRouter.get('/', (_req, res) => {
 	res.send('Spots endpoint hit.');
 });
 
+spotsRouter.get('/allSpots', async (_req, res) => {
+    try {
+        const spots = await Parking_Spot.findAll();
+
+        res.status(200).send(spots);
+    } catch (e) {
+        console.log(e);
+        res.status(200).send(e);
+    }
+});
+
 // TODO: Create spatial index on table to improve performance.
 spotsRouter.post('/find', async (req, res) => {
 	const { longitude, latitude } = req.query;
