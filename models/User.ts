@@ -2,13 +2,11 @@ import { dbConnection } from "./dbInit";
 import { DataTypes } from "sequelize";
 
 export const User = dbConnection.define('User', {
-    /*
     user_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
-    */
     vehicle_make: {
         type: DataTypes.STRING(45),
         allowNull: false
