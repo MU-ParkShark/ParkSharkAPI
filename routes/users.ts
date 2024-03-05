@@ -39,7 +39,7 @@ usersRouter.post('/createUser', jsonParser, async (req, res) => {
     };
 
     try {
-        await userSchema.validateAsync(userData);
+        //await userSchema.validateAsync(userData);
         const newUser = await User.create(userData);
         res.status(200).send(newUser);
     } catch (err) {
