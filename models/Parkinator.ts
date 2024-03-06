@@ -9,52 +9,6 @@ interface ILocation {
   latitude: number;
 }
 
-enum Day {
-    SUNDAY,
-    MONDAY,
-    TUESDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-    SATURDAY,
-}
-
-function setDay(day: number): Day {
-    let resultDay: Day;
-    switch(day) {
-        case 0: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-        case 1: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-        case 2: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-        case 3: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-        case 4: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-        case 5: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-        case 6: {
-            resultDay = Day.SUNDAY;
-            break;
-        }
-    }
-
-    return resultDay;
-}
-
 export default class Parkinator {
   constructor() {}
 
@@ -101,6 +55,7 @@ export default class Parkinator {
     };
 
     const spotUpdateData = {
+         is_available: 0,
     };
 
     const promise: Promise<String> = new Promise(async (res, rej) => {
@@ -140,6 +95,8 @@ export default class Parkinator {
   public async determineState(
     message: "CHECK" | "DISCONNECT",
     tag_id: number,
+    tag_activity_id: number,
+    user_id: number,
     longitude: number,
     latitude: number,
   ): Promise<State> {
@@ -162,7 +119,7 @@ export default class Parkinator {
 
             if (counter >= 3) {
                 Parkinator.getNearbySpot(longitude, latitude).then((spotID) => {
-                    Parkinator.updateSpot(spotID).then(() => {
+                    Parkinator.updateSpot(spotID, user_id, tag_activity_id).then(() => {
                         res(State.PARKED);            
                     }).catch((rejection) => {
                         rej(rejection);
@@ -179,7 +136,7 @@ export default class Parkinator {
             }
         } else if (message === "DISCONNECT") {
             Parkinator.getNearbySpot(longitude, latitude).then((spotID) => {
-                Parkinator.updateSpot(spotID).then(() => {
+                Parkinator.updateSpot(spotID, user_id, tag_activity?.getDataValue("tag_activity_id")).then(() => {
                     res(State.PARKED);            
                 }).catch((rejection) => {
                     rej(rejection);
