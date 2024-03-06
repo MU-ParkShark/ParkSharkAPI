@@ -9,6 +9,52 @@ interface ILocation {
   latitude: number;
 }
 
+enum Day {
+    SUNDAY,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
+}
+
+function setDay(day: number): Day {
+    let resultDay: Day;
+    switch(day) {
+        case 0: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+        case 1: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+        case 2: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+        case 3: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+        case 4: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+        case 5: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+        case 6: {
+            resultDay = Day.SUNDAY;
+            break;
+        }
+    }
+
+    return resultDay;
+}
+
 export default class Parkinator {
   constructor() {}
 
@@ -38,14 +84,23 @@ export default class Parkinator {
     return promise;
   }
 
-  private static updateSpot(spot_id: number): Promise<String> {
+  private static updateSpot(spot_id: number, user_id: number, tag_activity_id: number): Promise<String> {
     // TODO: Update Parking_Spots table isAvailable and Lot_Activity pTimeIn, pTimeOut, timeslot, and day_of_week.
+    const currentTime = Date.now();
+    const dateParser = new Date(currentTime);
+
+    const day = dateParser.getDay(); 
+
     const lotActivityData = {
-      // TODO
+        day_of_week: day,
+        ptime_in: dateParser.getTime(),
+        user_id,
+        spot_id,
+        status: "PARKED",
+        tag_activity_id,
     };
 
     const spotUpdateData = {
-      // TODO
     };
 
     const promise: Promise<String> = new Promise(async (res, rej) => {
@@ -83,6 +138,7 @@ export default class Parkinator {
   }
 
   public async determineState(
+    message: "CHECK" | "DISCONNECT",
     tag_id: number,
     longitude: number,
     latitude: number,
@@ -99,25 +155,40 @@ export default class Parkinator {
           order: [["tag_activity_id", "DESC"]],
         });
 
-        const counter = tag_activity?.getDataValue(
-          "unchanged_location_counter",
-        );
+        if (message === "CHECK") {
+            const counter = tag_activity?.getDataValue(
+                "unchanged_location_counter",
+            );
 
-        if (counter >= 3) {
-          const spotID = await Parkinator.getNearbySpot(longitude, latitude);
+            if (counter >= 3) {
+                Parkinator.getNearbySpot(longitude, latitude).then((spotID) => {
+                    Parkinator.updateSpot(spotID).then(() => {
+                        res(State.PARKED);            
+                    }).catch((rejection) => {
+                        rej(rejection);
+                    });
+                }).catch((rejection) => rej(rejection));
+            } else {
+                // TODO: Decode MySQL point to compare with given longitude and latitude.
+                const tagLocation = tag_activity?.getDataValue("location");
 
-          await Parkinator.updateSpot(spotID);
+                if (tagLocation === location)
+                    tag_activity?.set({ location_unchanged_counter: counter + 1 });
 
-          res(State.PARKED);
+                res(State.UNDECIDED);
+            }
+        } else if (message === "DISCONNECT") {
+            Parkinator.getNearbySpot(longitude, latitude).then((spotID) => {
+                Parkinator.updateSpot(spotID).then(() => {
+                    res(State.PARKED);            
+                }).catch((rejection) => {
+                    rej(rejection);
+                });
+            }).catch((rejection) => rej(rejection));
         } else {
-          // TODO: Decode MySQL point to compare with given longitude and latitude.
-          const tagLocation = tag_activity?.getDataValue("location");
-
-          if (tagLocation === location)
-            tag_activity?.set({ location_unchanged_counter: counter + 1 });
-
-          res(State.UNDECIDED);
+            rej("Must send a valid message with request! Possible values: CHECK | DISCONNECT");
         }
+
 
         res(State.UNDECIDED);
       } catch (e) {

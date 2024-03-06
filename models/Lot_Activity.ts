@@ -6,12 +6,11 @@ export const Lot_Activity = dbConnection.define(
   {
     activity_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
       primaryKey: true,
+      autoIncrement: true,
     },
     timeslot: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
     day_of_week: {
       type: DataTypes.TINYINT,
@@ -23,7 +22,6 @@ export const Lot_Activity = dbConnection.define(
     },
     ptime_out: {
       type: DataTypes.TIME,
-      allowNull: false,
     },
     user_id: {
       type: DataTypes.INTEGER,
