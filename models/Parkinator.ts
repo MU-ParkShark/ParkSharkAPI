@@ -4,26 +4,26 @@ import { Tag_Activity } from "./Tag_Activity";
 import { State } from "../Enums";
 import { QueryTypes } from "sequelize";
 
-interface ILocation {
-  longitude: number;
-  latitude: number;
-}
-
 const getNearestSpotId = async (longitude: number, latitude: number): Promise<number> => {
-  try {
-    const query = `SELECT *, ST_Distance_Sphere(latlong, POINT(${longitude}, ${latitude})) as distance FROM parking_spots ORDER BY distance LIMIT 1`;
-    const spots: any[] | undefined = await Parking_Spot.sequelize?.query(query, {
-      type: QueryTypes.SELECT,
-    });
+    try {
+        const query = `
+        SELECT spot_id, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
+        FROM parking_spots
+        ORDER BY distance
+        LIMIT 1
+        `;
+        const spots: any[] | undefined = await Parking_Spot.sequelize?.query(query, {
+            type: QueryTypes.SELECT,
+        });
 
-    if (!spots || spots.length === 0) {
-      throw new Error("No nearby spots found.");
+        if (!spots || spots.length === 0) {
+            throw new Error("No nearby spots found.");
+        }
+
+        return spots[0].spot_id;
+    } catch (error) {
+        throw new Error(`Error getting nearest spot: ${error}`);
     }
-
-    return spots[0].spot_id;
-  } catch (error) {
-    throw new Error(`Error getting nearest spot: ${error}`);
-  }
 };
 
 const updateSpotAndCreateLotActivity = async (
@@ -36,7 +36,7 @@ const updateSpotAndCreateLotActivity = async (
 
   const lotActivityData = {
     day_of_week: dayOfWeek,
-    ptime_in: currentTime.getTime(),
+    ptime_in: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,
     user_id: userId,
     spot_id: spotId,
     status: "PARKED",
@@ -69,8 +69,6 @@ const determineState = async (
   longitude: number,
   latitude: number
 ): Promise<State> => {
-  const location: ILocation = { longitude, latitude };
-
   try {
     const tagActivity = await Tag_Activity.findOne({
       where: { tag_id: tagId },
@@ -78,29 +76,38 @@ const determineState = async (
     });
 
     if (message === "CHECK") {
-      const unchangedLocationCounter = tagActivity?.getDataValue("unchanged_location_counter") || 0;
+      const unchangedLocationCounter = tagActivity?.getDataValue("location_unchanged_counter") || 0;
 
       if (unchangedLocationCounter >= 3) {
         const spotId = await getNearestSpotId(longitude, latitude);
         await updateSpotAndCreateLotActivity(spotId, userId, tagActivityId);
         return State.PARKED;
       } else {
-        const tagLocation = tagActivity?.getDataValue("location");
-        if (tagLocation === location) {
-          tagActivity?.set({ unchanged_location_counter: unchangedLocationCounter + 1 });
-        }
-        return State.UNDECIDED;
+          const tagLocation = tagActivity?.getDataValue("location");
+
+          if (tagLocation && tagLocation.coordinates) {
+              const [storedLongitude, storedLatitude] = tagLocation.coordinates;
+
+              if (storedLongitude.toFixed(8) === longitude.toFixed(8) && storedLatitude.toFixed(8) === latitude.toFixed(8)) {
+                  tagActivity?.set({ location_unchanged_counter: unchangedLocationCounter + 1 });
+                  await tagActivity?.save();
+              } else {
+                  tagActivity?.set({ location_unchanged_counter: 0 });
+                  await tagActivity?.save();
+              }
+          }
+          return State.UNDECIDED;
       }
     } else if (message === "DISCONNECT") {
-      const spotId = await getNearestSpotId(longitude, latitude);
-      const activityId = tagActivity?.getDataValue("tag_activity_id") || tagActivityId;
-      await updateSpotAndCreateLotActivity(spotId, userId, activityId);
-      return State.PARKED;
+        const spotId = await getNearestSpotId(longitude, latitude);
+        const activityId = tagActivity?.getDataValue("tag_activity_id") || tagActivityId;
+        await updateSpotAndCreateLotActivity(spotId, userId, activityId);
+        return State.PARKED;
     } else {
-      throw new Error("Invalid message provided. Possible values: CHECK | DISCONNECT");
+        throw new Error("Invalid message provided. Possible values: CHECK | DISCONNECT");
     }
   } catch (error) {
-    throw new Error(`Error determining state: ${error}`);
+      throw new Error(`Error determining state: ${error}`);
   }
 };
 

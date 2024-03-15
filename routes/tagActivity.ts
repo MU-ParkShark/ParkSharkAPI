@@ -33,61 +33,49 @@ tagActivityRouter.get("/:id/location", async (req, res) => {
 // 	- long, float
 // 	- lat, float
 tagActivityRouter.put("/:id/location", jsonParser, async (req, res) => {
-  const { id } = req.params;
-  const { message, long, lat, user_id } = req.body;
+    const { id } = req.params;
+    const { message, long, lat, user_id } = req.body;
+    const currentTime = new Date();
 
-  let tag_activity;
-  let success = true;
-  let messages = [];
-
-  try {
-    tag_activity = await Tag_Activity.findOne({
-      where: {
-        tag_id: parseInt(id),
-      },
-    });
-    if (!tag_activity) throw new Error("Tag Activity not found.");
-    await tag_activity.update({
-      location: { type: "Point", coordinates: [long, lat] },
-    });
-  } catch (error) {
-    if (error === "Tag Activity not found.") {
-        const currentTime = new Date();
-
-        const tagActivityData = {
-            tag_id: id,
-            location: { type: "Point", coordinates: [long, lat] },
-            update_timestamp: `${currentTime.getHours}:${currentTime.getMinutes}:${currentTime.getSeconds}`,
-        };
-
-        try {
-            tag_activity = await Tag_Activity.create(tagActivityData);
-        } catch(error) {
-            messages.push(`Unable to update tag location. Err: ${error}`);
-            success = false;
-        }
-    } else {
-        messages.push(`Unable to update tag location. Err: ${error}`);
-        success = false;
+    // Validate required fields
+    if (!message || !long || !lat || !user_id) {
+        return res.status(400).json({ success: false, message: "Missing required fields." });
     }
-  }
 
-  try {
-      const state = await Parkinator.determineState(
-          message, 
-          parseInt(id), 
-          tag_activity?.getDataValue("tag_activity_id"), 
-          parseInt(user_id),
-          parseFloat(long), 
-          parseFloat(lat)
-      );
+    try {
+        let tag_activity = await Tag_Activity.findOne({
+            where: {
+                tag_id: parseInt(id),
+            },
+        });
 
-      messages.push(state);
-  } catch (error) {
-      console.log(error);
-      messages.push(`Unable to determine state. Err: ${error}`);
-      success = false;
-  }
+        if (!tag_activity) {
+            const tagActivityData = {
+                tag_id: id,
+                location: { type: "Point", coordinates: [long, lat] },
+                update_timestamp: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,
+            };
 
-  res.status(200).send(messages);
+            tag_activity = await Tag_Activity.create(tagActivityData);
+        } else {
+            await tag_activity.update({
+                location: { type: "Point", coordinates: [long, lat] },
+                update_timestamp: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,
+            });
+        }
+
+        const state = await Parkinator.determineState(
+            message,
+            parseInt(id),
+            tag_activity.getDataValue("tag_activity_id"),
+            parseInt(user_id),
+            parseFloat(long),
+            parseFloat(lat)
+        );
+
+        return res.status(200).json({ success: true, state });
+    } catch (error) {
+        console.error("Error updating tag location:", error);
+        return res.status(500).json({ success: false, message: error });
+    }
 });
