@@ -32,8 +32,7 @@ const updateSpotAndCreateLotActivity = async (
   tagActivityId: number
 ): Promise<void> => {
   const currentTime = new Date();
-  const dayOfWeek = currentTime.getDay();
-
+  const dayOfWeek = currentTime.getDay();2
   const lotActivityData = {
     day_of_week: dayOfWeek,
     ptime_in: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,

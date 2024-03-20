@@ -76,6 +76,6 @@ tagActivityRouter.put("/:id/location", jsonParser, async (req, res) => {
         return res.status(200).json({ success: true, state });
     } catch (error) {
         console.error("Error updating tag location:", error);
-        return res.status(500).json({ success: false, message: error });
+        return res.status(200).json({ success: false, message: error });
     }
 });
