@@ -29,7 +29,7 @@ lotsRouter.get('/getLots/:lot_id', async (req, res) => {
             }
         });
 
-        res.status(200).send(lot);
+        res.status(200).json(lot);
     } catch (error) {
         console.log(error);
         res.status(200).send(error);
