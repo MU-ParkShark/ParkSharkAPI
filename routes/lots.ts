@@ -23,7 +23,7 @@ lotsRouter.get('/getLots/:lot_id', async (req, res) => {
     const { lot_id } = req.params;
 
     try {
-        const lot = Lot.findOne({
+        const lot = await Lot.findOne({
             where: {
                 lot_id: parseInt(lot_id),
             }
