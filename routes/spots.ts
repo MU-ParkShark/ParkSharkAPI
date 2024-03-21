@@ -22,7 +22,7 @@ spotsRouter.get('/allSpots', async (_req, res) => {
 
 // TODO: Create spatial index on table to improve performance.
 spotsRouter.post('/find', async (req, res) => {
-	const { longitude, latitude } = req.query;
+	const { longitude, latitude } = req.body;
 	try {
 		const query = `SELECT *, ST_Distance_Sphere(latlong, POINT(${longitude}, ${latitude})) as distance FROM parking_spots ORDER BY distance LIMIT 1`;
 		const spots = await Parking_Spot.sequelize?.query(query, {

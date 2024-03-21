@@ -17,6 +17,23 @@ lotsRouter.get('/getLots', async (_req, res) => {
         console.log(error);
         res.status(200).send(error);
     }
+});
+
+lotsRouter.get('/getLots/:lot_id', async (req, res) => {
+    const { lot_id } = req.params;
+
+    try {
+        const lot = await Lot.findOne({
+            where: {
+                lot_id: parseInt(lot_id),
+            }
+        });
+
+        res.status(200).json(lot);
+    } catch (error) {
+        console.log(error);
+        res.status(200).send(error);
+    }
 })
 
 lotsRouter.get('/getOccupancy', async (_req, res) => {
