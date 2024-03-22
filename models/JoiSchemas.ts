@@ -1,44 +1,49 @@
 import Joi from "joi";
 
 export const userSchema = Joi.object({
-  vehicle_make: Joi.string()
+    email: Joi.string()
+    .required(),
+    password: Joi.string()
+    .required(),
+    vehicle_make: Joi.string()
     .alphanum()
     .required(),
-  vehicle_model: Joi.string()
+    vehicle_model: Joi.string()
     .alphanum()
     .required(),
-  vehicle_year: Joi.number()
+    vehicle_year: Joi.number()
     .required(),
-  vehicle_color: Joi.string()
+    vehicle_color: Joi.string()
     .required(),
-  license_plate: Joi.string()
+    license_plate: Joi.string()
     .required(),
-  tag_id: Joi.number(),
-  first_name: Joi.string()
+    tag_id: Joi.number(),
+    first_name: Joi.string()
     .required(),
-  last_name: Joi.string()
+    last_name: Joi.string()
     .required()
 });
 
 export const scheduleSchema = Joi.object({
-  user_id: Joi.number()
+    user_id: Joi.number()
     .required(),
-  time_in: Joi.string()
+    time_in: Joi.string()
     .required(),
-  time_out: Joi.string()
+    day_of_week: Joi.number()
     .required(),
-  day_of_week: Joi.number()
-    .required()
+    event_name: Joi.string()
+    .required(),
+    lots: Joi.object()
 });
 
 export const spotSchema = Joi.object({
-  is_handicap: Joi.bool()
+    is_handicap: Joi.bool()
     .required(),
-  latlong: [
-    Joi.number(),
-    Joi.number() 
-  ],
-  is_available: Joi.bool(),
-  row_id: Joi.number(),
-  lot_id: Joi.number()
+    latlong: [
+        Joi.number(),
+        Joi.number() 
+    ],
+    is_available: Joi.bool(),
+    row_id: Joi.number(),
+    lot_id: Joi.number()
 });

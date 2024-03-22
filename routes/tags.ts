@@ -1,28 +1,45 @@
 import express, { Router } from 'express';
-import { Tag } from '../models/Tag';
-
-import { QueryTypes } from 'sequelize';
-
+import { Tag, TagCreationAttributes, TagAttributes } from '../models/Tag';
+import { User } from '../models/User';
+import bodyParser from "body-parser";
 
 export const tagsRouter: Router = express.Router();
+
+const jsonParser = bodyParser.json();
 
 tagsRouter.get('/', (_req, res) => {
 	res.send('Tags endpoint hit.');
 });
 
 // Create tag
-// Query params:
+// Body params:
 // 	- user, int
-// TODO: Set tag_id to autoincrement in db (requires fk deletion)
-tagsRouter.post('/', async (req, res) => {
-	const { user } = req.query;
-	try {
-		const tag = await Tag.create({ user_id: user });
-		res.status(201).json(tag);
-	} catch (error) {
-		console.log(error);
-		res.status(500).send('Unable to create tag.');
-	}
+tagsRouter.post('/', jsonParser, async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    // Create the tag
+    const tagData: TagCreationAttributes = {
+      user_id,
+      serial_code: "TESTESTESTESTESTEST",
+    };
+    const tTag = await Tag.create(tagData);
+    const tag = tTag.get({plain: true}) as TagAttributes;
+
+    // Update the user's tag_id in the users table
+    await User.update(
+      { tag_id: tag.tag_id },
+      { where: { user_id } }
+    );
+
+    // Retrieve the updated user
+    const updatedUser = await User.findOne({ where: { user_id } });
+
+    res.status(201).json({ tag, user: updatedUser });
+  } catch (error) {
+    console.log(error);
+    res.status(200).send('Unable to create tag and update user.');
+  }
 });
 
 // Get tag by tag_id
@@ -34,7 +51,7 @@ tagsRouter.get('/:id', async (req, res) => {
 		res.status(200).json(tag);
 	} catch (error) {
 		console.log(error);
-		res.status(404).send('Tag not found.');
+		res.status(200).send('Tag not found.');
 	}
 });
 
@@ -47,61 +64,25 @@ tagsRouter.get('/user/:id', async (req, res) => {
 		res.status(200).json(tag);
 	} catch (error) {
 		console.log(error);
-		res.status(404).send('Tag not found.');
+		res.status(200).send('Tag not found.');
 	}
 });
 
 // Update tag's user_id
 // Query params:
 // 	- user, int
-tagsRouter.put('/:id', async (req, res) => {
+tagsRouter.put('/:id', jsonParser, async (req, res) => {
 	const { id } = req.params;
-	const { user } = req.query;
+	const { user_id } = req.body;
 	try {
 		const tag = await Tag.findByPk(id);
 		if (!tag) throw new Error('Tag not found.');
-		await tag.update({ user_id: user });
+		await tag.update({ user_id });
+        await tag.save();
 		res.status(200).json(tag);
 	} catch (error) {
 		console.log(error);
-		res.status(500).send('Unable to update tag.');
-	}
-});
-
-// Get tag's last location
-tagsRouter.get('/:id/location', async (req, res) => {
-	const { id } = req.params;
-	try {
-		const tag = await Tag.findByPk(id);
-		if (!tag) throw new Error('Tag not found.');
-		const lastLocation = await Tag.sequelize?.query(
-			`SELECT ST_AsText(last_latlong) FROM tags WHERE tag_id = ${id}`,
-			{ type: QueryTypes.SELECT }
-		);
-		res.status(200).json(lastLocation);
-	} catch (error) {
-		console.log(error);
-		res.status(404).send('Tag not found.');
-	}
-});
-
-// Update tag's last location
-// Query params:
-// 	- long, float
-// 	- lat, float
-tagsRouter.put('/:id/location', async (req, res) => {
-	const { id } = req.params;
-	const { long, lat } = req.query;
-	try {
-		const tag = await Tag.findByPk(id);
-		if (!tag) throw new Error('Tag not found.');
-		await tag.update({
-			last_latlong: { type: 'Point', coordinates: [long, lat] },
-		});
-		res.status(200).json(tag);
-	} catch (error) {
-		console.log(error);
-		res.status(500).send('Unable to update tag location.');
+		res.status(200).send('Unable to update tag.');
 	}
 });
 
@@ -115,7 +96,7 @@ tagsRouter.delete('/:id', async (req, res) => {
 		res.status(200).send('Tag deleted.');
 	} catch (error) {
 		console.log(error);
-		res.status(500).send('Unable to delete tag.');
+		res.status(200).send('Unable to delete tag.');
 	}
 });
 
@@ -129,6 +110,6 @@ tagsRouter.delete('/user/:id', async (req, res) => {
 		res.status(200).send('Tag deleted.');
 	} catch (error) {
 		console.log(error);
-		res.status(500).send('Unable to delete tag.');
+		res.status(200).send('Unable to delete tag.');
 	}
 });

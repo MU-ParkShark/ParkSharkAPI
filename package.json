@@ -23,6 +23,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
@@ -31,6 +32,7 @@
     "sequelize": "^6.35.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
     "concurrently": "^8.2.2",

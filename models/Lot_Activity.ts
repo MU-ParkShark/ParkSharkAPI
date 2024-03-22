@@ -32,7 +32,7 @@ export const Lot_Activity = dbConnection.define(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("PARKED", "CANDIDATE", "VOID"),
+      type: DataTypes.ENUM("PARKED", "CANDIDATE", "VOID", "COMPLETE"),
       allowNull: false,
       defaultValue: "VOID",
     },

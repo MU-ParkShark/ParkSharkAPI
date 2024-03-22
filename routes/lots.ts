@@ -38,7 +38,7 @@ lotsRouter.get('/getLots/:lot_id', async (req, res) => {
 
 lotsRouter.get('/getOccupancy', async (_req, res) => {
     try {
-        const allSpotCounts = await Parking_Spot.findAndCountAll({
+        const totalCount = await Parking_Spot.findAndCountAll({
             attributes: [
                 'lot_id'
             ],
@@ -55,7 +55,7 @@ lotsRouter.get('/getOccupancy', async (_req, res) => {
             }
         });
 
-        res.status(200).send({ allSpotCounts, occupiedSpotCounts });
+        res.status(200).send({ totalCount, occupiedSpotCounts });
         } catch (error) {
             console.log(error);
             res.status(200).send("Unable to get occupancy.");

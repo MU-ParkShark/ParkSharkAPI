@@ -1,7 +1,22 @@
 import { dbConnection } from "./dbInit";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 
-export const User = dbConnection.define('User', {
+export interface UserAttributes {
+  user_id: number;
+  vehicle_make: string;
+  vehicle_model: string;
+  vehicle_year: number;
+  vehicle_color: string;
+  license_plate: string;
+  tag_id?: number;
+  first_name: string;
+  last_name: string;
+}
+
+export interface UserCreationAttributes extends Optional<UserAttributes, 'user_id'> {}
+
+
+export const User = dbConnection.define<Model<UserAttributes, UserCreationAttributes>>('User', {
     user_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -43,3 +58,4 @@ export const User = dbConnection.define('User', {
     timestamps: false,
     underscored: true
 });
+
