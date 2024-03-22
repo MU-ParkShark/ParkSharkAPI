@@ -67,7 +67,7 @@ const determineState = async (
   userId: number,
   longitude: number,
   latitude: number
-): Promise<State> => {
+): Promise<{state: State, spot_id: number | null}> => {
   try {
     const tagActivity = await Tag_Activity.findOne({
       where: { tag_id: tagId },
@@ -80,7 +80,7 @@ const determineState = async (
       if (unchangedLocationCounter >= 3) {
         const spotId = await getNearestSpotId(longitude, latitude);
         await updateSpotAndCreateLotActivity(spotId, userId, tagActivityId);
-        return State.PARKED;
+        return { state: State.PARKED, spot_id: spotId };
       } else {
           const tagLocation = tagActivity?.getDataValue("location");
 
@@ -95,13 +95,13 @@ const determineState = async (
                   await tagActivity?.save();
               }
           }
-          return State.UNDECIDED;
+          return { state: State.UNDECIDED, spot_id: null };
       }
     } else if (message === "DISCONNECT") {
         const spotId = await getNearestSpotId(longitude, latitude);
         const activityId = tagActivity?.getDataValue("tag_activity_id") || tagActivityId;
         await updateSpotAndCreateLotActivity(spotId, userId, activityId);
-        return State.PARKED;
+        return {state: State.PARKED, spot_id: spotId };
     } else {
         throw new Error("Invalid message provided. Possible values: CHECK | DISCONNECT");
     }

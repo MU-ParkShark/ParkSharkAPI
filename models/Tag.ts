@@ -1,7 +1,15 @@
 import { dbConnection } from './dbInit';
-import { DataTypes } from 'sequelize';
+import { DataTypes, Optional, Model } from 'sequelize';
 
-export const Tag = dbConnection.define(
+export interface TagAttributes {
+  tag_id: number;
+  user_id: number;
+  serial_code: string;
+}
+
+export interface TagCreationAttributes extends Optional<TagAttributes, 'tag_id'> {}
+
+export const Tag = dbConnection.define<Model<TagAttributes, TagCreationAttributes>>(
 	'Tag',
 	{
 		tag_id: {
