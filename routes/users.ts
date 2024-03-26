@@ -9,6 +9,11 @@ export const usersRouter: Router = express.Router();
 
 const jsonParser = bodyParser.json();
 
+const _userAssoc = User.hasOne(Credential);
+const credAssoc = Credential.belongsTo(User, {
+                    foreignKey: 'id'
+            });
+
 usersRouter.get('/', (_req, res) => {
     res.send('Users endpoint hit.');
 });
@@ -16,12 +21,34 @@ usersRouter.get('/', (_req, res) => {
 usersRouter.get('/getUser/:id', async (req, res) => {
     try {
         await User.sync();
-        const resUser = await User.findAll({
+
+        const resUser = await User.findOne({
             where: {
                 user_id: parseInt(req.params.id)
             }
         });
-        res.send(resUser);
+
+        if (resUser) {
+            const user = resUser.get({ plain: true }) as UserAttributes;
+
+            const rCredential = await Credential.findOne({
+                where: {
+                    user_id: user.user_id
+                },
+                attributes: ['email']
+            });
+
+            const credential = rCredential ? rCredential.get({ plain: true }) as CredentialAttributes : null;
+
+            const userWithEmail = {
+                ...resUser.toJSON(),
+                email: credential ? credential.email : null
+            };
+
+            res.send(userWithEmail);
+        } else {
+            res.status(200).send('User not found');
+        }
     } catch (error) {
         console.log(error);
         res.status(200).send('Failure to retrieve user');

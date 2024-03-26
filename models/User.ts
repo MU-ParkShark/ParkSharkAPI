@@ -1,5 +1,6 @@
 import { dbConnection } from "./dbInit";
 import { DataTypes, Model, Optional } from "sequelize";
+import { Credential } from "./Credential";
 
 export interface UserAttributes {
   user_id: number;
@@ -56,6 +57,5 @@ export const User = dbConnection.define<Model<UserAttributes, UserCreationAttrib
 }, {
     tableName: "users",
     timestamps: false,
-    underscored: true
+    underscored: true, 
 });
-
