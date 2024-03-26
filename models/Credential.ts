@@ -1,6 +1,7 @@
 import { dbConnection } from './dbInit';
 import { Model, DataTypes, Optional } from 'sequelize';
 import bcrypt from 'bcrypt';
+import { User } from './User';
 
 export interface CredentialAttributes {
   id?: number;
@@ -32,7 +33,7 @@ export const Credential = dbConnection.define<Model<CredentialAttributes, Creden
 }, {
   tableName: 'credentials',
   timestamps: false,
-  underscored: true,
+  underscored: true, 
   hooks: {
     beforeCreate: async (credential: any) => {
       const saltRounds = 10;
@@ -40,3 +41,5 @@ export const Credential = dbConnection.define<Model<CredentialAttributes, Creden
     },
   },
 });
+
+
