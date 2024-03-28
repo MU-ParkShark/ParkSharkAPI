@@ -50,13 +50,13 @@ tagActivityRouter.put("/:id/location", jsonParser, async (req, res) => {
         if (!tag_activity) {
             const tagActivityData = {
                 tag_id: id,
-                location: { type: "Point", coordinates: [long, lat] },
+                location: { type: "Point", coordinates: [lat, long] },
                 update_timestamp: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,
             };
             tag_activity = await Tag_Activity.create(tagActivityData);
         } else {
             await tag_activity.update({
-                location: { type: "Point", coordinates: [long, lat] },
+                location: { type: "Point", coordinates: [lat, long] },
                 update_timestamp: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,
             });
         }
