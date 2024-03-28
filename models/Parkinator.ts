@@ -7,11 +7,12 @@ import { QueryTypes } from "sequelize";
 const getNearestSpotId = async (longitude: number, latitude: number): Promise<number> => {
     try {
         const query = `
-        SELECT spot_id, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
+        SELECT spot_id, ST_Distance_Sphere(latlong, ST_SRID(POINT(${latitude}, ${longitude}), 4326)) as distance
         FROM parking_spots
         ORDER BY distance
         LIMIT 1
         `;
+
         const spots: any[] | undefined = await Parking_Spot.sequelize?.query(query, {
             type: QueryTypes.SELECT,
         });
@@ -20,7 +21,14 @@ const getNearestSpotId = async (longitude: number, latitude: number): Promise<nu
             throw new Error("No nearby spots found.");
         }
 
-        return spots[0].spot_id;
+        const spot = spots[0];
+        const distanceInMeters = spot.distance;
+
+        if (distanceInMeters <= 2.1336) {
+            return spot.spot_id;
+        } else {
+            return -1;
+        }
     } catch (error) {
         throw new Error(`Error getting nearest spot: ${error}`);
     }
@@ -32,7 +40,7 @@ const updateSpotAndCreateLotActivity = async (
   tagActivityId: number
 ): Promise<void> => {
   const currentTime = new Date();
-  const dayOfWeek = currentTime.getDay();2
+  const dayOfWeek = currentTime.getDay();
   const lotActivityData = {
     day_of_week: dayOfWeek,
     ptime_in: `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`,
@@ -79,13 +87,18 @@ const determineState = async (
 
       if (unchangedLocationCounter >= 3) {
         const spotId = await getNearestSpotId(longitude, latitude);
-        await updateSpotAndCreateLotActivity(spotId, userId, tagActivityId);
-        return { state: State.PARKED, spot_id: spotId };
+
+        if (spotId !== -1) {
+            await updateSpotAndCreateLotActivity(spotId, userId, tagActivityId);
+            return { state: State.PARKED, spot_id: spotId };
+        } else {
+            return { state: State.UNDECIDED, spot_id: null };
+        }      
       } else {
           const tagLocation = tagActivity?.getDataValue("location");
 
           if (tagLocation && tagLocation.coordinates) {
-              const [storedLongitude, storedLatitude] = tagLocation.coordinates;
+              const [storedLatitude, storedLongitude] = tagLocation.coordinates;
 
               if (storedLongitude.toFixed(8) === longitude.toFixed(8) && storedLatitude.toFixed(8) === latitude.toFixed(8)) {
                   tagActivity?.set({ location_unchanged_counter: unchangedLocationCounter + 1 });
@@ -99,9 +112,14 @@ const determineState = async (
       }
     } else if (message === "DISCONNECT") {
         const spotId = await getNearestSpotId(longitude, latitude);
-        const activityId = tagActivity?.getDataValue("tag_activity_id") || tagActivityId;
-        await updateSpotAndCreateLotActivity(spotId, userId, activityId);
-        return {state: State.PARKED, spot_id: spotId };
+
+        if (spotId !== -1) {
+            const activityId = tagActivity?.getDataValue("tag_activity_id") || tagActivityId;
+            await updateSpotAndCreateLotActivity(spotId, userId, activityId);
+            return { state: State.PARKED, spot_id: spotId };
+        } else {
+            return { state: State.UNDECIDED, spot_id: null };
+        }    
     } else {
         throw new Error("Invalid message provided. Possible values: CHECK | DISCONNECT");
     }
