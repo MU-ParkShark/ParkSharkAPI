@@ -9,11 +9,6 @@ export const usersRouter: Router = express.Router();
 
 const jsonParser = bodyParser.json();
 
-const _userAssoc = User.hasOne(Credential);
-const credAssoc = Credential.belongsTo(User, {
-                    foreignKey: 'id'
-            });
-
 usersRouter.get('/', (_req, res) => {
     res.send('Users endpoint hit.');
 });
