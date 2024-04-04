@@ -39,43 +39,47 @@ lotsRouter.get('/getLots/:lot_id', async (req, res) => {
 lotsRouter.get('/getOccupancy', async (_req, res) => {
     try {
         const totalCounts = await Parking_Spot.findAndCountAll({
-            attributes: [
-                'lot_id'
-            ],
+            attributes: ['lot_id'],
             group: ['lot_id'],
         });
 
         const occupiedCounts = await Parking_Spot.findAndCountAll({
-            attributes: [
-                'lot_id'
-            ],
+            attributes: ['lot_id'],
             group: ['lot_id'],
             where: {
-                is_available: 0
-            }
-        }); 
+                is_available: 0,
+            },
+        });
 
-        const lotOccupancies = totalCounts.count.map(totalCount => {
+        const lotOccupancyPromises = totalCounts.count.map(async totalCount => {
             const lotId = totalCount.lot_id;
             const totalSpots = totalCount.count;
-
             const occupiedCount = occupiedCounts.count.find(count => count.lot_id === lotId);
             const occupiedSpots = occupiedCount ? occupiedCount.count : 0;
-
             const relativeOccupancy = occupiedSpots / totalSpots;
+
+            const currentLot = await Lot.findOne({
+                where: {
+                    lot_id: lotId,
+                },
+            });
+
+            const lotType = currentLot?.getDataValue('lot_type');
 
             return {
                 lot_id: lotId,
                 totalCount: totalSpots,
                 occupiedCount: occupiedSpots,
-                relativeOccupancy
+                relativeOccupancy,
+                lotType,
             };
         });
 
-        res.status(200).send({ lotOccupancies });
+        const lotOccupancies = await Promise.all(lotOccupancyPromises);
+        res.status(200).send(lotOccupancies);
     } catch (error) {
         console.log(error);
-        res.status(200).send("Unable to get occupancy.");
+        res.status(200).send('Unable to get occupancy.');
     }
 });
 
@@ -97,13 +101,22 @@ lotsRouter.get('/getOccupancy/:id', async (req, res) => {
             }
         });
 
+        const lot = await Lot.findOne({
+            where: {
+                lot_id: parseInt(req.params.id),
+            },
+        });
+
+        const lotType = lot?.getDataValue("lot_type");
+
         const relativeOccupancy = (occupiedCount.count/totalCount.count);
 
         res.status(200).json({
             lot_id: req.params.id,
             totalCount: totalCount.count,
             occupiedCount: occupiedCount.count,
-            relativeOccupancy
+            relativeOccupancy,
+            lotType,
         })
     } catch (error) {
         console.log(error);

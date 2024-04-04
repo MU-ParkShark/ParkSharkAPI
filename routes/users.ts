@@ -119,7 +119,7 @@ usersRouter.post('/validateLogin', jsonParser, async (req, res) => {
     }
 
     // Login is valid, send the user details in the response
-    res.status(200).json({ user });
+    res.status(200).send(user);
   } catch (err) {
     console.error(err);
     res.status(200).json({ error: 'Internal server error' });
