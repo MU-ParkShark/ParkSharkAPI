@@ -7,7 +7,7 @@ import { QueryTypes } from "sequelize";
 const getNearestSpotId = async (longitude: number, latitude: number): Promise<number> => {
     try {
         const query = `
-        SELECT spot_id, ST_Distance_Sphere(latlong, ST_SRID(POINT(${latitude}, ${longitude}), 4326)) as distance
+        SELECT spot_id, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
         FROM parking_spots
         ORDER BY distance
         LIMIT 1
