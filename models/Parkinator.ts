@@ -27,6 +27,7 @@ const getNearestSpotId = async (longitude: number, latitude: number): Promise<nu
         if (distanceInMeters <= 2.1336) {
             return spot.spot_id;
         } else {
+            console.log("No spots near this location!");
             return -1;
         }
     } catch (error) {
