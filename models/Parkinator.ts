@@ -6,13 +6,14 @@ import { QueryTypes } from "sequelize";
 
 interface SpotData {
     spot_id: number,
-    location?: string,
+    latitude?: number,
+    longitude?: number,
 }
 
 const getNearestSpotId = async (longitude: number, latitude: number): Promise<SpotData> => {
     try {
         const query = `
-        SELECT spot_id, ST_AsText(latlong) as location, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
+        SELECT spot_id, ST_X(latlong) as latitude, ST_Y(latlong) as longitude, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
         FROM parking_spots
         ORDER BY distance
         LIMIT 1
@@ -30,7 +31,7 @@ const getNearestSpotId = async (longitude: number, latitude: number): Promise<Sp
         const distanceInMeters = spot.distance;
 
         if (distanceInMeters <= 2.1336) {
-            return { spot_id: spot.spot_id, location: spot.location };
+            return { spot_id: spot.spot_id, latitude: spot.latitude, longitude: spot.longitude };
         } else {
             console.log("No spots near this location!");
             return { spot_id: -1 } ;
