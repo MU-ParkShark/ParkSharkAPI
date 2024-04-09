@@ -4,10 +4,15 @@ import { Tag_Activity } from "./Tag_Activity";
 import { State } from "../Enums";
 import { QueryTypes } from "sequelize";
 
-const getNearestSpotId = async (longitude: number, latitude: number): Promise<number> => {
+interface SpotData {
+    spot_id: number,
+    location: string,
+}
+
+const getNearestSpotId = async (longitude: number, latitude: number): Promise<SpotData> => {
     try {
         const query = `
-        SELECT spot_id, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
+        SELECT spot_id, ST_AsText(latlong) as location, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
         FROM parking_spots
         ORDER BY distance
         LIMIT 1
@@ -25,7 +30,7 @@ const getNearestSpotId = async (longitude: number, latitude: number): Promise<nu
         const distanceInMeters = spot.distance;
 
         if (distanceInMeters <= 2.1336) {
-            return spot.spot_id;
+            return { spot_id: spot.spot_id, location: spot.location };
         } else {
             console.log("No spots near this location!");
             return -1;
@@ -76,7 +81,7 @@ const determineState = async (
   userId: number,
   longitude: number,
   latitude: number
-): Promise<{state: State, spot_id: number | null}> => {
+): Promise<{state: State, spot_data: SpotData | null}> => {
   try {
     const tagActivity = await Tag_Activity.findOne({
       where: { tag_id: tagId },
@@ -89,11 +94,11 @@ const determineState = async (
       if (unchangedLocationCounter >= 3) {
         const spotId = await getNearestSpotId(longitude, latitude);
 
-        if (spotId !== -1) {
-            await updateSpotAndCreateLotActivity(spotId, userId, tagActivityId);
-            return { state: State.PARKED, spot_id: spotId };
+        if (spotId.spot_id !== -1) {
+            await updateSpotAndCreateLotActivity(spotId.spot_id, userId, tagActivityId);
+            return { state: State.PARKED, spot_data: spotId };
         } else {
-            return { state: State.UNDECIDED, spot_id: null };
+            return { state: State.UNDECIDED, spot_data: null };
         }      
       } else {
           const tagLocation = tagActivity?.getDataValue("location");
@@ -109,17 +114,17 @@ const determineState = async (
                   await tagActivity?.save();
               }
           }
-          return { state: State.UNDECIDED, spot_id: null };
+          return { state: State.UNDECIDED, spot_data: null };
       }
     } else if (message === "DISCONNECT") {
         const spotId = await getNearestSpotId(longitude, latitude);
 
-        if (spotId !== -1) {
+        if (spotId.spot_id !== -1) {
             const activityId = tagActivity?.getDataValue("tag_activity_id") || tagActivityId;
-            await updateSpotAndCreateLotActivity(spotId, userId, activityId);
-            return { state: State.PARKED, spot_id: spotId };
+            await updateSpotAndCreateLotActivity(spotId.spot_id, userId, activityId);
+            return { state: State.PARKED, spot_data: spotId };
         } else {
-            return { state: State.UNDECIDED, spot_id: null };
+            return { state: State.UNDECIDED, spot_data: null };
         }    
     } else {
         throw new Error("Invalid message provided. Possible values: CHECK | DISCONNECT");
