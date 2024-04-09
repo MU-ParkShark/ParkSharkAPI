@@ -6,7 +6,7 @@ import { QueryTypes } from "sequelize";
 
 interface SpotData {
     spot_id: number,
-    location: string,
+    location?: string,
 }
 
 const getNearestSpotId = async (longitude: number, latitude: number): Promise<SpotData> => {
@@ -33,7 +33,7 @@ const getNearestSpotId = async (longitude: number, latitude: number): Promise<Sp
             return { spot_id: spot.spot_id, location: spot.location };
         } else {
             console.log("No spots near this location!");
-            return -1;
+            return { spot_id: -1 } ;
         }
     } catch (error) {
         throw new Error(`Error getting nearest spot: ${error}`);
