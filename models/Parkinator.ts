@@ -13,7 +13,7 @@ interface SpotData {
 const getNearestSpotId = async (longitude: number, latitude: number): Promise<SpotData> => {
     try {
         const query = `
-        SELECT spot_id, ST_X(latlong) as latitude, ST_Y(latlong) as longitude, ST_Distance_Sphere(latlong, ST_SRID(POINT(${longitude}, ${latitude}), 4326)) as distance
+        SELECT spot_id, ST_X(latlong) as latitude, ST_Y(latlong) as longitude, ST_Distance_Sphere(latlong, ST_SRID(POINT(${latitude}, ${longitude}), 4326)) as distance
         FROM parking_spots
         ORDER BY distance
         LIMIT 1
