@@ -6,7 +6,7 @@ import Parkinator from "../models/Parkinator";
 import { State } from "../Enums";
 import { QueryTypes } from "sequelize";
 import bodyParser from "body-parser";
-import { auth } from "../controllers/jwt-verification";
+import { auth } from "../middleware/jwt-verification";
 
 export const tagActivityRouter: Router = express.Router();
 const jsonParser = bodyParser.json();

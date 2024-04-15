@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import { Schedule } from "../models/Schedule";
 import bodyParser from "body-parser";
 import { scheduleSchema } from "../models/JoiSchemas";
-import { auth } from "../controllers/jwt-verification";
+import { auth } from "../middleware/jwt-verification";
 
 export const schedulesRouter: Router = express.Router();
 const jsonParser = bodyParser.json();

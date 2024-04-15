@@ -9,7 +9,7 @@ import { userSchema } from "../models/JoiSchemas";
 import bcrypt from "bcrypt";
 import jwt, { Secret } from "jsonwebtoken";
 import bodyParser from "body-parser";
-import { auth } from "../controllers/jwt-verification";
+import { auth } from "../middleware/jwt-verification";
 
 export const usersRouter: Router = express.Router();
 
