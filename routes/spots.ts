@@ -1,7 +1,6 @@
 import express, { Router } from 'express';
-import { Parking_Spot } from '../models/Parking_Spot';
+import { Parking_Spot } from '../models/Parking_Spot.js';
 import { QueryTypes } from 'sequelize';
-import { spotSchema } from "../models/JoiSchemas";
 
 export const spotsRouter: Router = express.Router();
 

@@ -1,6 +1,5 @@
-import { dbConnection } from "./dbInit";
+import { dbConnection } from "./dbInit.js";
 import { DataTypes, Model, Optional } from "sequelize";
-import { Credential } from "./Credential";
 
 export interface UserAttributes {
   user_id: number;

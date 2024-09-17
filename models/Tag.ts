@@ -1,4 +1,4 @@
-import { dbConnection } from './dbInit';
+import { dbConnection } from './dbInit.js';
 import { DataTypes, Optional, Model } from 'sequelize';
 
 export interface TagAttributes {

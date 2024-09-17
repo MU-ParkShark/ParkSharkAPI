@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
-import { Tag, TagCreationAttributes, TagAttributes } from '../models/Tag';
-import { User } from '../models/User';
+import { Tag, TagCreationAttributes, TagAttributes } from '../models/Tag.js';
+import { User } from '../models/User.js';
 import bodyParser from "body-parser";
 
 export const tagsRouter: Router = express.Router();

@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { User, UserAttributes, UserCreationAttributes } from "../models/User";
-import { Credential, CredentialAttributes, CredentialCreationAttributes } from '../models/Credential';
-import { userSchema } from "../models/JoiSchemas";
+import { User, UserAttributes, UserCreationAttributes } from "../models/User.js";
+import { Credential, CredentialAttributes, CredentialCreationAttributes } from '../models/Credential.js';
+import { userSchema } from "../models/JoiSchemas.js";
 import bcrypt from 'bcrypt';
 import bodyParser from "body-parser";
 

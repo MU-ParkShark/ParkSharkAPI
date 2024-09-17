@@ -1,6 +1,6 @@
 import express, { Router } from "express";
-import { Parking_Spot } from "../models/Parking_Spot";
-import { Lot } from "../models/Lot";
+import { Parking_Spot } from "../models/Parking_Spot.js";
+import { Lot } from "../models/Lot.js";
 
 export const lotsRouter: Router = express.Router();
 

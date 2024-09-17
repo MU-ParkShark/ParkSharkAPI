@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { Schedule } from "../models/Schedule";
+import { Schedule } from "../models/Schedule.js";
 import bodyParser from "body-parser";
-import { scheduleSchema } from "../models/JoiSchemas";
+import { scheduleSchema } from "../models/JoiSchemas.js";
 
 export const schedulesRouter: Router = express.Router();
 const jsonParser = bodyParser.json();

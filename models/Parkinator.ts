@@ -1,7 +1,7 @@
-import { Parking_Spot } from "../models/Parking_Spot";
-import { Lot_Activity } from "./Lot_Activity";
-import { Tag_Activity } from "./Tag_Activity";
-import { State } from "../Enums";
+import { Parking_Spot } from "../models/Parking_Spot.js";
+import { Lot_Activity } from "./Lot_Activity.js";
+import { Tag_Activity } from "./Tag_Activity.js";
+import { State } from "../Enums.js";
 import { QueryTypes } from "sequelize";
 
 interface SpotData {

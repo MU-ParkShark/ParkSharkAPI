@@ -1,9 +1,9 @@
 import express, { Router } from "express";
-import { Tag_Activity } from "../models/Tag_Activity";
-import { Lot_Activity } from '../models/Lot_Activity';
-import { Parking_Spot } from '../models/Parking_Spot';
-import Parkinator from "../models/Parkinator";
-import { State } from "../Enums";
+import { Tag_Activity } from "../models/Tag_Activity.js";
+import { Lot_Activity } from '../models/Lot_Activity.js';
+import { Parking_Spot } from '../models/Parking_Spot.js';
+import Parkinator from "../models/Parkinator.js";
+import { State } from "../Enums.js";
 import { QueryTypes } from "sequelize";
 import bodyParser from "body-parser";
 

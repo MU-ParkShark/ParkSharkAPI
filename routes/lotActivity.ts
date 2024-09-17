@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { Lot_Activity } from '../models/Lot_Activity';
+import { Lot_Activity } from '../models/Lot_Activity.js';
 
 export const lotActivityRouter: Router = express.Router();
 

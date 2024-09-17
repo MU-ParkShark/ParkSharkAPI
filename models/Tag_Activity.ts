@@ -1,4 +1,4 @@
-import { dbConnection } from "./dbInit";
+import { dbConnection } from "./dbInit.js";
 import { DataTypes } from "sequelize";
 
 export const Tag_Activity = dbConnection.define(

@@ -1,7 +1,6 @@
-import { dbConnection } from './dbInit';
+import { dbConnection } from './dbInit.js';
 import { Model, DataTypes, Optional } from 'sequelize';
 import bcrypt from 'bcrypt';
-import { User } from './User';
 
 export interface CredentialAttributes {
   id?: number;

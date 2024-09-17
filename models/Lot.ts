@@ -1,4 +1,4 @@
-import { dbConnection } from './dbInit';
+import { dbConnection } from './dbInit.js';
 import { DataTypes } from 'sequelize';
 
 export const Lot = dbConnection.define(
