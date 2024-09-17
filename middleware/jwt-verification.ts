@@ -20,6 +20,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 
     next();
   } catch (err) {
-    res.status(401).send("Please authenticate");
+    res.status(401).send("Unauthorized - Please log in to make this request!");
   }
 };
