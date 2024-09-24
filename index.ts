@@ -47,4 +47,4 @@ const { url } = await startStandaloneServer(apolloServer, {
 	listen: { port: 4000 },
 });
 
-console.log(`Running GraphQL Server at ${url}`);
+console.log(`Running REST API Server at http://localhost:3000/\nRunning GraphQL Server at ${url}`);
