@@ -6,6 +6,17 @@ interface FindUserArgs {
     id: number,
 };
 
+interface UpdateUserArgs {
+    vehicle_make?: string,
+    vehicle_model?: string,
+    vehicle_year?: number,
+    vehicle_color?: string,
+    license_plate?: string,
+    tag_id?: number,
+    first_name?: string,
+    last_name?: string,
+}
+
 interface UserInput {
     vehicle_make: string,
     vehicle_model: string,
@@ -71,6 +82,49 @@ export const resolvers = {
             } catch (error: any) {
                 console.error('Error creating user:', error);
                 throw new Error('Failed to create user: ' + error.message);
+            }
+        },
+        updateUser: async (_: any, args: { id: number, input: UpdateUserArgs }) => {
+            const { id, input } = args;
+
+            const updateData = {
+                ...input
+            };
+
+            console.log(input);
+        
+            try {
+                const entryToBeChanged = await User.findOne({
+                    where: {
+                        'user_id': id
+                    }
+                });
+        
+                entryToBeChanged?.set(updateData);
+        
+                const response = await entryToBeChanged?.save();
+
+                return response;
+            } catch (err: any) {
+                console.log(err);
+                throw new Error('Failed to update user: ' + err.message)
+            }
+        },
+        deleteUser: async (_: any, args: { id: number }) => {
+            const { id } = args;
+
+            try {
+                const user = await User.findOne({
+                    where: {
+                        'user_id': id
+                    }
+                });
+        
+                const response = await user?.destroy();
+                return response;
+            } catch (err: any) {
+                console.log(err);
+                throw new Error('Failed to delete user: ' + err.message);
             }
         }
     },
