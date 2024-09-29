@@ -1,61 +1,20 @@
+import { userTypes, userQuerySchema, userMutationSchema } from "./Users/types.js";
+import { tagSchema, tagQuerySchema, tagMutationSchema } from "./Tags/types.js";
+import { scheduleQuerySchema, scheduleTypes } from "./Schedules/types.js";
+import { lotTypes } from "./Lots/types.js";
+
 export const typeDefs = `#graphql
-type User {
-    user_id: Int
-    vehicle_make: String
-    vehicle_model: String
-    vehicle_year: Int
-    vehicle_color: String
-    license_plate: String
-    tag_id: Int
-    first_name: String
-    last_name: String
-}
-
-type Credential {
-    credential_id: Int!
-    user_id: Int!
-    email: String!
-}
-
- type UserWithCredential {
-    user: User!
-    credential: Credential!
-}
-
-input UserInput {
-    vehicle_make: String!
-    vehicle_model: String!
-    vehicle_year: Int!
-    vehicle_color: String!
-    license_plate: String!
-    tag_id: Int
-    first_name: String!
-    last_name: String!
-    email: String!
-    password: String!
-}
-
-input PossibleUserInput {
-    vehicle_make: String
-    vehicle_model: String
-    vehicle_year: Int
-    vehicle_color: String
-    license_plate: String
-    tag_id: Int
-    first_name: String
-    last_name: String
-    email: String
-    password: String
-}
-
+${userTypes}
+${tagSchema}
+${scheduleTypes}
+${lotTypes}
 type Query {
-    users: [User]
-    user(id: Int!): User
+    ${userQuerySchema}
+    ${tagQuerySchema}
+    ${scheduleQuerySchema}
 }
 
 type Mutation {
-    createUser(input: UserInput!): UserWithCredential!
-    updateUser(id: Int!, input: PossibleUserInput): User
-    deleteUser(id: Int!): User
+    ${userMutationSchema}
 }
 `;

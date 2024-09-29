@@ -1,131 +1,20 @@
-import { BaseContext } from "@apollo/server";
-import { User, UserAttributes, UserCreationAttributes } from "../models/User.js";
-import { Credential, CredentialCreationAttributes, CredentialAttributes } from "../models/Credential.js";
+import { scheduleQueries } from "./Schedules/resolvers.js";
+import { tagQueries } from "./Tags/resolvers.js";
+import { userQueries, userMutations } from "./Users/resolvers.js";
 
-interface FindUserArgs {
-    id: number,
+
+
+const queries = {
+    ...userQueries,
+    ...tagQueries,
+    ...scheduleQueries
 };
 
-interface UpdateUserArgs {
-    vehicle_make?: string,
-    vehicle_model?: string,
-    vehicle_year?: number,
-    vehicle_color?: string,
-    license_plate?: string,
-    tag_id?: number,
-    first_name?: string,
-    last_name?: string,
-}
-
-interface UserInput {
-    vehicle_make: string,
-    vehicle_model: string,
-    vehicle_year: number,
-    vehicle_color: string,
-    license_plate: string,
-    tag_id?: number,
-    first_name: string,
-    last_name: string,
-    email: string,
-    password: string,
-}
+const mutations = {
+    ...userMutations
+};
 
 export const resolvers = {
-    Query: {
-        users: () => User.findAll(),
-        user: (_parent: BaseContext, args: FindUserArgs, _contextValue: BaseContext, _info: BaseContext) => User.findOne({
-            where: {
-                user_id: args.id
-            }
-        }),
-    },
-    Mutation: {
-        createUser: async (_: any, args: { input: UserInput }) => {
-            try {
-                const { input } = args;
-
-                // Extract user data
-                const userData: UserCreationAttributes = {
-                    vehicle_make: input.vehicle_make,
-                    vehicle_model: input.vehicle_model,
-                    vehicle_year: input.vehicle_year,
-                    vehicle_color: input.vehicle_color,
-                    license_plate: input.license_plate,
-                    tag_id: input.tag_id || undefined,
-                    first_name: input.first_name,
-                    last_name: input.last_name
-                };
-
-                // Create the user record
-                const newUser = await User.create(userData);
-                const user = newUser.get({ plain: true }) as UserAttributes;
-
-                // Extract credential data
-                const credentialData: CredentialCreationAttributes = {
-                    user_id: user.user_id,
-                    email: input.email,
-                    password: input.password
-                };
-
-                // Create the credential record
-                const newCredential = await Credential.create(credentialData);
-                const credential = newCredential.get({ plain: true }) as CredentialAttributes;
-
-                return { 
-                    user, 
-                    credential: {
-                        credential_id: credential.id,
-                        user_id: credential.user_id,
-                        email: credential.email
-                    }
-                };
-            } catch (error: any) {
-                console.error('Error creating user:', error);
-                throw new Error('Failed to create user: ' + error.message);
-            }
-        },
-        updateUser: async (_: any, args: { id: number, input: UpdateUserArgs }) => {
-            const { id, input } = args;
-
-            const updateData = {
-                ...input
-            };
-
-            console.log(input);
-        
-            try {
-                const entryToBeChanged = await User.findOne({
-                    where: {
-                        'user_id': id
-                    }
-                });
-        
-                entryToBeChanged?.set(updateData);
-        
-                const response = await entryToBeChanged?.save();
-
-                return response;
-            } catch (err: any) {
-                console.log(err);
-                throw new Error('Failed to update user: ' + err.message)
-            }
-        },
-        deleteUser: async (_: any, args: { id: number }) => {
-            const { id } = args;
-
-            try {
-                const user = await User.findOne({
-                    where: {
-                        'user_id': id
-                    }
-                });
-        
-                const response = await user?.destroy();
-                return response;
-            } catch (err: any) {
-                console.log(err);
-                throw new Error('Failed to delete user: ' + err.message);
-            }
-        }
-    },
+    Query: queries,
+    Mutation: mutations,
 };

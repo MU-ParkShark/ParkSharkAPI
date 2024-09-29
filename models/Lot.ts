@@ -1,12 +1,21 @@
 import { dbConnection } from './dbInit.js';
-import { DataTypes } from 'sequelize';
+import { DataTypes, Optional, Model } from 'sequelize';
+
+export interface LotAttributes {
+	lot_id: number;
+	lot_type: "commuter" | "resident" | "faculty" ;
+	is_available: 0 | 1;
+	auto_lot_id: number;
+	bounding_box: { topLeft: [number, number], bottom_right: [number, number] };
+}
+
+// export interface LotCreationAttributes extends Optional<LotAttributes, 'lot_id'> {};
 
 export const Lot = dbConnection.define(
 	'Lot',
 	{
 		lot_id: {
 			type: DataTypes.INTEGER,
-			allowNull: false,
 			primaryKey: true,
 		},
 		lot_type: {

@@ -1,6 +1,15 @@
 import { dbConnection } from "./dbInit.js";
 import { DataTypes } from "sequelize";
 
+export interface ScheduleAttributes {
+    schedule_id: number,
+    user_id: number,
+    time_in: string, 
+    day_of_week: number,
+    event_name: string,
+    lots: { lot_ids: number[] }
+}
+
 export const Schedule = dbConnection.define('Schedule', {
     schedule_id: {
         type: DataTypes.INTEGER,
