@@ -111,6 +111,8 @@ alertsRouter.get('/getEffectiveAlerts', async (_req, res) => {
       }
     });
 
+
+// FOR POST ( We enter datetime(timestamp)ALSO status = 1 unless specified in req body)
 alertsRouter.delete('/deleteAlert/:id', async (req,res) =>{
   try{
     const alert = await Alerts.findOne({

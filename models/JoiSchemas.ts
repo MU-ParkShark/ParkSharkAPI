@@ -47,3 +47,18 @@ export const spotSchema = Joi.object({
     row_id: Joi.number(),
     lot_id: Joi.number()
 });
+export const alertSchema = Joi.object({
+    alert_id: Joi.number()
+    .required(),
+    posted_by: Joi.number()
+    .required(),
+    eff_date: Joi.date()
+    .required(),
+    end_date: Joi.date()
+    .required(),
+    title: Joi.string()
+    .required(),
+    status: Joi.number(),
+    message: Joi.string()
+    .required()
+})
