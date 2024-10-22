@@ -2,9 +2,10 @@ import express, { Router } from "express";
 import { Alerts } from "../models/Alerts";
 import { User } from "../models/User";
 import { Sequelize } from "sequelize";
-
+import bodyParser from "body-parser";
 
 const { Op } = require('sequelize');
+const jsonParser = bodyParser.json();
 
 interface User {
     first_name: string;
@@ -31,8 +32,8 @@ alertsRouter.get('/getAllAlerts', async (_req, res) => {
       }],
       attributes: ['alert_id', 'title', 'message', 'date_time','posted_by'],
     });
-    
-    const formattedAlerts = alerts.map(alert => {
+
+      const formattedAlerts = alerts.map(alert => {
         const user = alert.get('User') as User; // Get the User object directly
       
         return {
@@ -49,8 +50,8 @@ alertsRouter.get('/getAllAlerts', async (_req, res) => {
         alerts: formattedAlerts,
         totalAlerts: formattedAlerts.length
       });
-      
-  } catch (error) {
+    }
+     catch (error) {
     console.log(error);
     res.status(500).json({ message: 'An error occurred while fetching alerts.', error });
   }
@@ -85,26 +86,42 @@ alertsRouter.get('/getEffectiveAlerts', async (_req, res) => {
         attributes: ['alert_id','title','message','date_time','posted_by'],
 
       });
-      const formattedAlerts = alerts.map(alert => {
-        const user = alert.get('User') as User; // Get the User object directly
       
-        return {
-          alert_id: alert.get('alert_id'),
-          title: alert.get('title'),
-          message: alert.get('message'),
-          date_time: alert.get('date_time'),
-          userId: alert.get('posted_by'),
-          username: user ? `${user.first_name} ${user.last_name}` : 'Unknown User' // Direct access
-        };
-      });
-      res.status(200).json({
-        alerts: formattedAlerts,
-        totalAlerts: formattedAlerts.length
-      });
-    
-    
+   
+        const formattedAlerts = alerts.map(alert => {
+          const user = alert.get('User') as User; // Get the User object directly
+        
+          return {
+            alert_id: alert.get('alert_id'),
+            title: alert.get('title'),
+            message: alert.get('message'),
+            date_time: alert.get('date_time'),
+            userId: alert.get('posted_by'),
+            username: user ? `${user.first_name} ${user.last_name}` : 'Unknown User' // Direct access
+          };
+        });
+        res.status(200).json({
+          alerts: formattedAlerts,
+          totalAlerts: formattedAlerts.length
+        });
+
     }catch(error){
         console.log(error);
         res.status(500).json({ message: 'An error occurred while fetching alerts.', error });
       }
     });
+
+alertsRouter.delete('/deleteAlert/:id', async (req,res) =>{
+  try{
+    const alert = await Alerts.findOne({
+      where : {
+        'alert_id' : parseInt(req.params.id) // express extracts request query params and stores in 'req.params'
+      }}
+    );
+    const response = await alert?.destroy();//Delete if user exists '?.' handles if users is null ( short-circuits and does not do desotry())
+    res.status(200).send(response);
+  }catch(error){
+    console.log(error)
+    res.status(500).json({ message: 'An error occurred while deleting alert.', error });
+  }
+});
