@@ -118,7 +118,7 @@ alertsRouter.delete('/deleteAlert/:id', async (req,res) =>{
         'alert_id' : parseInt(req.params.id) // express extracts request query params and stores in 'req.params'
       }}
     );
-    const response = await alert?.destroy();//Delete if user exists '?.' handles if users is null ( short-circuits and does not do desotry())
+    const response = await alert?.destroy();//Delete if alert exists '?.' handles if alert is null ( short-circuits and does not do desotry())
     res.status(200).send(response);
   }catch(error){
     console.log(error)
