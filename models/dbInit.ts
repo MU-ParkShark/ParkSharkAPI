@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 require('dotenv').config();
 
-const dbName = process.env.DB_NAME || 'parkshark';
+const dbName = process.env.DB_NAME || 'parkshark2';
 const dbUser = process.env.DB_USER || 'root'; // Ensure env is configured, root is very unsafe.
 const dbPass = process.env.DB_PASS || 'root'; // Ensure env is configured, root is very unsafe.
 
