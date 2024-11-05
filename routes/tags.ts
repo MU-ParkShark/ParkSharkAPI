@@ -7,21 +7,28 @@ export const tagsRouter: Router = express.Router();
 
 const jsonParser = bodyParser.json();
 
-tagsRouter.get('/', (_req, res) => {
-	res.send('Tags endpoint hit.');
+tagsRouter.get('/', async (_req, res) => {
+	try {
+		const tags = await Tag.findAll();
+
+		res.send(tags);
+	} catch (error) {
+		console.log(error);
+		res.status(200).send(error);
+	}
 });
 
 // Create tag
 // Body params:
 // 	- user, int
 tagsRouter.post('/', jsonParser, async (req, res) => {
-  const { user_id } = req.body;
+  const { user_id, serial_code } = req.body;
 
   try {
     // Create the tag
     const tagData: TagCreationAttributes = {
       user_id,
-      serial_code: "TESTESTESTESTESTEST",
+      serial_code: serial_code || "TESTESTESTESTESTEST",
     };
     const tTag = await Tag.create(tagData);
     const tag = tTag.get({plain: true}) as TagAttributes;
@@ -73,11 +80,11 @@ tagsRouter.get('/user/:id', async (req, res) => {
 // 	- user, int
 tagsRouter.put('/:id', jsonParser, async (req, res) => {
 	const { id } = req.params;
-	const { user_id } = req.body;
+	
 	try {
 		const tag = await Tag.findByPk(id);
 		if (!tag) throw new Error('Tag not found.');
-		await tag.update({ user_id });
+		await tag.update({ ...req.body });
         await tag.save();
 		res.status(200).json(tag);
 	} catch (error) {

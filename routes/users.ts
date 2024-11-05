@@ -13,6 +13,39 @@ usersRouter.get('/', (_req, res) => {
     res.send('Users endpoint hit.');
 });
 
+usersRouter.get('/getUsers', async (req, res) => {
+  try {
+    const resUsers = await User.findAll();
+
+    if (resUsers) {
+      resUsers.map(async (rUser) => {
+        const user = rUser.get({ plain: true }) as UserAttributes;
+
+            const rCredential = await Credential.findOne({
+                where: {
+                    user_id: user.user_id
+                },
+                attributes: ['email']
+            });
+
+            const credential = rCredential ? rCredential.get({ plain: true }) as CredentialAttributes : null;
+
+            const userWithEmail = {
+                ...rUser.toJSON(),
+                email: credential ? credential.email : null
+            };
+
+            return userWithEmail;
+      });
+
+      res.send(resUsers);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(200).send('Failure to retrieve users');
+}
+});
+
 usersRouter.get('/getUser/:id', async (req, res) => {
     try {
         await User.sync();

@@ -1,0 +1,285 @@
+scalar DateTime
+scalar JSON
+
+type Point {
+  type: String!
+  coordinates: [Float!]!
+  longitude: Float!
+  latitude: Float!
+}
+
+# Types with relationships
+type User {
+  user_id: Int!
+  vehicle_make: String!
+  vehicle_model: String!
+  vehicle_year: Int!
+  vehicle_color: String!
+  license_plate: String!
+  tag_id: Int
+  first_name: String!
+  last_name: String!
+  # Resolved relationships
+  tag: Tag
+  schedules: [Schedule!]
+  credential: Credential
+}
+
+type Credential {
+  email: String!
+  user_id: Int!
+}
+
+type Tag {
+  tag_id: Int!
+  user_id: Int!
+  serial_code: String!
+  # Resolved relationships
+  user: User
+}
+
+type TagActivity {
+  tag_activity_id: Int!
+  location: Point
+  update_timestamp: String
+  location_unchanged_counter: Int!
+  tag_id: Int!
+  status: String
+  # Resolved relationships
+  tag: Tag
+  user: User
+}
+
+type TagLocation {
+  ST_AsText: String!  # From the raw SQL query format
+  coordinates: Point  # Transformed for easier consumption
+}
+
+type TagStateResponse {
+  success: Boolean!
+  state: String!  # Will be "PARKED" or "UNDECIDED" based on Parkinator's State enum
+  spotData: SpotData
+  message: String
+}
+
+type TagUnparkedResponse {
+  success: Boolean!
+}
+
+type SpotData {
+  spot_id: Int!
+  location: String
+}
+
+input TagLocationInput {
+  message: String!  # "CHECK" or "DISCONNECT"
+  long: Float!
+  lat: Float!
+  user_id: Int!
+}
+
+input UnparkInput {
+  spot_id: Int!
+}
+
+type LotActivity {
+  activity_id: Int!
+  timeslot: String
+  day_of_week: Int!
+  ptime_in: String!
+  ptime_out: String
+  user_id: Int!
+  spot_id: Int!
+  tag_activity_id: Int!
+  # Resolved relationships
+  user: User
+  tagActivity: TagActivity
+  spot: Lot
+}
+
+type Lot {
+  lot_id: Int!
+  lot_type: String!
+  is_available: Boolean
+  auto_lot_id: Int!
+  bounding_box: JSON
+}
+
+type LotOccupancy {
+  lot_id: Int!
+  totalCount: Int!
+  occupiedCount: Int!
+  relativeOccupancy: Float!
+  lotType: String
+}
+
+type LotSpots {
+  lot_id: Int!
+  spots: [ParkingSpot!]!
+}
+
+type Schedule {
+  schedule_id: Int!
+  user_id: Int!
+  time_in: String!
+  day_of_week: Int!
+  event_name: String!
+  lots: JSON
+}
+
+type ParkingSpot {
+  spot_id: Int!
+  is_handicap: Boolean!
+  latlong: Point!
+  is_available: Boolean!
+  row_id: Int!
+  lot_id: Int!
+}
+
+# Input types for mutations
+input CreateUserInput {
+  vehicle_make: String!
+  vehicle_model: String!
+  vehicle_year: Int!
+  vehicle_color: String!
+  license_plate: String!
+  tag_id: Int
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  vehicle_make: String
+  vehicle_model: String
+  vehicle_year: Int
+  vehicle_color: String
+  license_plate: String
+  tag_id: Int
+  first_name: String
+  last_name: String
+}
+
+input CreateScheduleInput {
+  user_id: Int!
+  time_in: String!
+  day_of_week: Int!
+  event_name: String!
+  lots: JSON
+}
+
+input UpdateScheduleInput {
+  time_in: String
+  day_of_week: Int
+  event_name: String
+  lots: JSON
+}
+
+input CreateTagInput {
+  user_id: Int!
+  serial_code: String
+}
+
+input UpdateTagInput {
+  user_id: Int
+  serial_code: String
+}
+
+input CreateLotActivityInput {
+  timeslot: String
+  day_of_week: Int!
+  ptime_in: String!
+  ptime_out: String
+  user_id: Int!
+  spot_id: Int!
+  tag_activity_id: Int!
+}
+
+input CreateLotActivityBySpotInput {
+  timeslot: String
+  day_of_week: Int!
+  ptime_in: String!
+  ptime_out: String
+  user_id: Int!
+  status: String
+  tag_activity_id: Int!
+}
+
+type Query {
+  # User queries
+  user(user_id: Int!): User
+  userByLicensePlate(license_plate: String!): User
+  userByTag(tag_id: Int!): User
+
+  # Lot queries
+  lot(lot_id: Int!): Lot
+  lots: [Lot!]!
+  lotOccupancy: [LotOccupancy!]!
+  lotOccupancyById(lot_id: Int!): LotOccupancy
+  lotSpots(lot_id: Int!): LotSpots    
+
+  # Parking spot queries
+  parkingSpot(spot_id: Int!): ParkingSpot
+  nearbySpots(latitude: Float!, longitude: Float!, radius: Float): [ParkingSpot!]!
+
+  # Schedule queries
+  schedule(schedule_id: Int!): Schedule
+  userSchedules(user_id: Int!): [Schedule!]!
+
+  # Tag queries
+  tag(tag_id: Int!): Tag
+  tagBySerialCode(serial_code: String!): Tag
+
+  # Tag activity queries
+  tagActivity(tag_activity_id: Int!): TagActivity
+  tagLocation(tag_id: Int!): TagLocation
+
+  # Lot activity queries
+  lotActivity(activity_id: Int!): LotActivity
+  spotActivity(spot_id: Int!): [LotActivity!]!
+}
+
+type Mutation {
+  # User mutations
+  createUser(input: CreateUserInput!): User!
+  updateUser(user_id: Int!, input: UpdateUserInput!): User!
+  deleteUser(user_id: Int!): Boolean!
+
+  # Schedule mutations
+  createSchedule(input: CreateScheduleInput!): Schedule!
+  updateSchedule(schedule_id: Int!, input: UpdateScheduleInput!): Schedule!
+  deleteSchedule(schedule_id: Int!): Boolean!
+
+  # Tag mutations
+  createTag(input: CreateTagInput!): Tag!
+  updateTag(tag_id: Int!, input: UpdateTagInput!): Tag!
+  deleteTag(tag_id: Int!): Boolean!
+
+  # Tag activity mutations
+  updateTagActivity(tag_id: Int!, input: UpdateTagActivityInput!): TagActivity!
+  updateTagLocation(
+    tag_id: Int!
+    input: TagLocationInput!
+  ): TagStateResponse!
+  
+  unmarkTagAsParked(
+    input: UnparkInput!
+  ): TagUnparkedResponse!
+
+  # Lot activity mutations
+  createSpotActivity(
+    spot_id: Int!
+    input: CreateLotActivityBySpotInput!
+  ): LotActivity!
+}
+
+input UpdateTagActivityInput {
+  status: String
+  location: PointInput
+  user_id: Int!
+}
+
+input PointInput {
+  coordinates: [Float!]!
+}

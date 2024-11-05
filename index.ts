@@ -1,10 +1,10 @@
 import { ApolloServer } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 
-import { typeDefs } from './graphql/types.js';
 import { resolvers } from './graphql/resolvers.js';
 
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 
 import { usersRouter } from './routes/users.js';
 import { lotsRouter } from './routes/lots.js';
@@ -14,37 +14,71 @@ import { lotActivityRouter } from './routes/lotActivity.js';
 import { tagsRouter } from './routes/tags.js';
 import { tagActivityRouter } from './routes/tagActivity.js';
 
-const app: Express = express();
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import http from 'http';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
-// Router setup - Will be phased out as part of this branch.
-app.use('/users', usersRouter);
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename) + '/graphql';
 
-app.use('/lots', lotsRouter);
+// Read schema file
+const typeDefs = readFileSync(
+  path.join(__dirname, 'schema.graphql'),
+  'utf-8'
+);
 
-app.use('/spots', spotsRouter);
-
-app.use('/schedules', schedulesRouter);
-
-app.use('/lotactivity', lotActivityRouter);
-
-app.use('/tags', tagsRouter);
-
-app.use('/tagActivity', tagActivityRouter);
-app.get('/', (_req: Request, res: Response) => {
-	res.send('ParkShark API loading...');
-});
-// End of router setup
-
-// GraphQL Standalone Server Setup - Should be migrating to full rely on this.
-const apolloServer = new ApolloServer({
-	typeDefs,
-	resolvers
-});
-
-app.listen(3000);
-
-const { url } = await startStandaloneServer(apolloServer, {
-	listen: { port: 4000 },
-});
-
-console.log(`Running REST API Server at http://localhost:3000/\nRunning GraphQL Server at ${url}`);
+async function startApolloServer() {
+	const app = express();
+	const httpServer = http.createServer(app);
+  
+	// Create Apollo Server
+	const server = new ApolloServer({
+	  typeDefs,
+	  resolvers,
+	  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+	});
+  
+	// Start Apollo Server
+	await server.start();
+  
+	// REST API Routes
+	app.use('/users', usersRouter);
+	app.use('/lots', lotsRouter);
+	app.use('/spots', spotsRouter);
+	app.use('/schedules', schedulesRouter);
+	app.use('/lotactivity', lotActivityRouter);
+	app.use('/tags', tagsRouter);
+	app.use('/tagActivity', tagActivityRouter);
+  
+	// Apply Apollo middleware to Express
+	app.use(
+	  '/graphql',
+	  cors<cors.CorsRequest>(),
+	  bodyParser.json(),
+	  expressMiddleware(server),
+	);
+  
+	// Health check endpoint
+	app.get('/health', (req, res) => {
+	  res.status(200).send('Server is running');
+	});
+  
+	const PORT = process.env.PORT || 3000;
+	
+	// Start the server
+	await new Promise<void>((resolve) => {
+	  httpServer.listen({ port: PORT }, resolve);
+	});
+  
+	console.log(`🚀 Server ready at http://localhost:${PORT}`);
+	console.log(`🚀 GraphQL endpoint at http://localhost:${PORT}/graphql`);
+  }
+  
+  // Start the server
+  startApolloServer().catch((err) => {
+	console.error('Failed to start server:', err);
+  });

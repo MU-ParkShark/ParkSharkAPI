@@ -17,3 +17,4 @@ node_modules
 .vscode
 .pm2
 ecosystem.config.js
+*.hidden
