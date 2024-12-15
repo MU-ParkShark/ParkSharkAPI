@@ -2,20 +2,21 @@ import express, { Router } from "express";
 import { Schedule } from "../models/Schedule";
 import bodyParser from "body-parser";
 import { scheduleSchema } from "../models/JoiSchemas";
+import { auth } from "../middleware/jwt-verification";
 
 export const schedulesRouter: Router = express.Router();
 const jsonParser = bodyParser.json();
 
-schedulesRouter.get('/', (_req, res) => {
-  res.send('Schedules endpoint hit.');
+schedulesRouter.get("/", (_req, res) => {
+  res.send("Schedules endpoint hit.");
 });
 
-schedulesRouter.get('/getUserSchedule/:id', async (req, res) => {
+schedulesRouter.get("/getUserSchedule/:id", auth, async (req, res) => {
   try {
     const resSchedule = await Schedule.findAll({
       where: {
-        'user_id': parseInt(req.params.id)
-      }
+        user_id: parseInt(req.params.id),
+      },
     });
     res.send(resSchedule);
   } catch (err) {
@@ -25,13 +26,13 @@ schedulesRouter.get('/getUserSchedule/:id', async (req, res) => {
 });
 
 // Expects request body to be JSON data
-schedulesRouter.post('/setSchedule', jsonParser, async (req, res) => {
+schedulesRouter.post("/setSchedule", jsonParser, auth, async (req, res) => {
   const scheduleData = {
     user_id: req.body.userId || -1,
     time_in: req.body.timeIn || null,
     day_of_week: req.body.dayOfWeek || -1,
     event_name: req.body.eventName || "",
-    lots: req.body.lots || null
+    lots: req.body.lots || null,
   };
 
   try {
@@ -45,37 +46,42 @@ schedulesRouter.post('/setSchedule', jsonParser, async (req, res) => {
 });
 
 // Expects request body to be JSON data
-schedulesRouter.patch('/updateSchedule/:id', jsonParser, async (req, res) => {
-  const updatedData = {
-    ...req.body
-  };
+schedulesRouter.patch(
+  "/updateSchedule/:id",
+  jsonParser,
+  auth,
+  async (req, res) => {
+    const updatedData = {
+      ...req.body,
+    };
 
-  try {
-    const entryToBeChanged = await Schedule.findOne({
-      where: {
-        'schedule_id': req.params.id
+    try {
+      const entryToBeChanged = await Schedule.findOne({
+        where: {
+          schedule_id: req.params.id,
+        },
+      });
+
+      if (entryToBeChanged) {
+        entryToBeChanged.set(updatedData);
+        const response = await entryToBeChanged.save();
+        res.status(200).send(response);
+      } else {
+        res.status(200).send("Schedule entry not found");
       }
-    });
-
-    if (entryToBeChanged) {
-      entryToBeChanged.set(updatedData);
-      const response = await entryToBeChanged.save();
-      res.status(200).send(response);
-    } else {
-      res.status(200).send("Schedule entry not found");
+    } catch (err) {
+      console.log(err);
+      res.status(200).send(err);
     }
-  } catch (err) {
-    console.log(err);
-    res.status(200).send(err);
-  }
-});
+  },
+);
 
-schedulesRouter.delete('/deleteScheduleEntry/:id', async (req, res) => {
+schedulesRouter.delete("/deleteScheduleEntry/:id", auth, async (req, res) => {
   try {
     const entryToBeDeleted = await Schedule.findOne({
       where: {
-        'schedule_id': req.params.id
-      }
+        schedule_id: req.params.id,
+      },
     });
 
     if (entryToBeDeleted) {
